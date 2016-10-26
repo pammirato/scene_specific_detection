@@ -1,4 +1,5 @@
 %TODO - pick better boxes(higher ious first)
+ %    -pick better boxes(aspect ratios (not really slim boxes)
 
 
 
@@ -34,7 +35,13 @@ for il=1:length(image_names)
   gt_boxes = load(fullfile(gt_boxes_path,cur_mat_name));
   gt_boxes = gt_boxes.boxes; 
   
-
+  
+  %get rid of really skinny boxes
+  min_dims = min(full_props(:,3)-full_props(:,1) , full_props(:,4)-full_props(:,2));
+  skinny_boxes = find(min_dims < 5);
+  full_props(skinny_boxes,:) = [];
+  
+  
   %will hold indicies of possilbe background boxes
   possible_bgs = [1:size(full_props,1)];
   

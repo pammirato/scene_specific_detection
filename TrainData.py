@@ -121,7 +121,15 @@ class TrainData:
       #resize the box_img, but KEEP ASPECT RATIO
       scale_factor = TrainData.input_max_dim / float(max(box_img.shape[0:2]));
       new_size = (int(box_img.shape[0]*scale_factor), int(box_img.shape[1]*scale_factor),3)
-      resized_box_img = misc.imresize(box_img, new_size);
+
+
+      try:
+        resized_box_img = misc.imresize(box_img, new_size);
+      except:
+        breakp = 1
+
+
+
 
       #pad image with zeros to get to desired size
       blank_img = np.zeros((TrainData.input_max_dim, TrainData.input_max_dim,3),dtype=np.int32);
