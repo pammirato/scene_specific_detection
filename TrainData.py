@@ -13,9 +13,10 @@ class TrainData:
   BASE_PATH = '/playpen/ammirato/Data/RohitData/';
   
 
-  input_max_dim = 300;
+  input_max_dim = 300
+  num_cats = 33 
 
-  IMG_DIM_REDUCE_FACTOR = 2;
+  IMG_DIM_REDUCE_FACTOR = 2
   
   IMG_W = 1920/IMG_DIM_REDUCE_FACTOR
   IMG_H = 1080/IMG_DIM_REDUCE_FACTOR
@@ -99,7 +100,8 @@ class TrainData:
                             TrainData.input_max_dim,TrainData.IMG_CH),dtype=np.int32)
    
 
-    gt_labels = np.zeros(cur_props.shape[0]) 
+    #holds one hot vectors for labels
+    gt_labels = np.zeros((cur_props.shape[0], TrainData.num_cats)) 
 
     #for each prop, get its image
     for il in range(0,cur_props.shape[0]):
@@ -128,7 +130,7 @@ class TrainData:
       prop_imgs[il,:,:,:] = blank_img;
 
       #record the label
-      gt_labels[il] = box[4] 
+      gt_labels[il,box[4]-1] = 1 
 
     #end for il, each prop box
 

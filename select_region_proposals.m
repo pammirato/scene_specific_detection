@@ -86,7 +86,7 @@ for il=1:length(image_names)
   %choose two random backgrounds
   bgs = randperm(length(possible_bgs));
   bgs = bgs(1:2);
-  bgs = [full_props(bgs,:) [-1; bg_cat_id]];
+  bgs = [full_props(bgs,:) [bg_cat_id; bg_cat_id]];
   
   %get the selected object boxes
   objs = [full_props(object_selects(:,1),:) object_selects(:,2)];
