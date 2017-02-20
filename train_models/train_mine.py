@@ -28,11 +28,11 @@ import matplotlib.pyplot as plt
 #                     'for unit testing.')
 
 learning_rate = .001
-max_steps = 100 #Number of training steps
+max_steps = 1000 #Number of training steps
 batch_size = 32
 image_shape = [32,32,3]
 summary_dir = './summaries'
-save_model_dir = './models'
+save_model_dir = './trained_models/'
 model_name = 'test'
 
 
@@ -202,8 +202,8 @@ def run_training():
 
     # Build a Graph that computes predictions from the inference model.
     logits = model_spec.inference(InputData.InputData.num_cats, images_placeholder,
-                             2,
-                             2,
+                             4,
+                             4,
                              1024)
 
     # Add to the Graph the Ops for loss calculation.

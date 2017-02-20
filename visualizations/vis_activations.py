@@ -8,6 +8,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+batch_size = 1
+trained_model_dir= '/playpen/ammirato/Documents/scene_specific_detection/trained_models/'
+model_name = 'test-999'
+image_size = 32
+
+
+
+
+
+
+
+
 
 
 
@@ -28,13 +40,13 @@ def fill_feed_dict(data_set, images_pl, labels_pl, batch_size):
   """
   # Create the feed_dict for the placeholders filled with the next
   # `batch size` examples.
-  images_feed, labels_feed, paths_feed = data_set.next_batch(batch_size)
+  images_feed, labels_feed = data_set.next_batch(batch_size)
 
   feed_dict = {
       images_pl: images_feed,
       labels_pl: labels_feed,
   }
-  return [feed_dict, paths_feed]
+  return feed_dict
 
 
 
@@ -43,23 +55,6 @@ def fill_feed_dict(data_set, images_pl, labels_pl, batch_size):
 
 
 
-
-#from https://medium.com/@awjuliani/visualizing-neural-network-layer-activation-tensorflow-tutorial-d45f8bf7bbc4#.fn12got2j
-def getActivations(layer,stimuli):
-    units = sess.run(layer,feed_dict={x:np.reshape(stimuli,[1,784],order='F'),keep_prob:1.0})
-    plotNNFilter(units)
-
-
-#from https://medium.com/@awjuliani/visualizing-neural-network-layer-activation-tensorflow-tutorial-d45f8bf7bbc4#.fn12got2j
-def plotNNFilter(units):
-    filters = units.shape[3]
-    plt.figure(1, figsize=(20,20))
-    n_columns = 6
-    n_rows = math.ceil(filters / n_columns) + 1
-    for i in range(filters):
-        plt.subplot(n_rows, n_columns, i+1)
-        plt.title('Filter ' + str(i))
-        plt.imshow(units[0,:,:,i], interpolation="nearest", cmap="gray")
 
 
 
@@ -75,18 +70,16 @@ sess = tf.Session()
 
 
 
-train_data = InputData.InputData('',128, random=1);
+train_data = InputData.InputData('Home_14_1',32);
 
 
 
 
 
-#model_path= '/playpen/ammirato/Data/Tensorflow_Checkpoints/vgg_16.ckpt'
-model_path= '/playpen/ammirato/Documents/scene_specific_detection/data/'
 
 
-saver = tf.train.import_meta_graph(model_path + 'checkpoint-999.meta')
-saver.restore(sess,model_path+'checkpoint-999')
+saver = tf.train.import_meta_graph(trained_model_dir + model_name + '.meta')
+saver.restore(sess,trained_model_dir + model_name)
 
 
 g = tf.get_default_graph()
@@ -113,11 +106,11 @@ eval_correct =  tf.reduce_sum(tf.cast(correct, tf.int32))
 
 num_filters = 3
 
-label =1 
+label = 0
 
-while label!=0:
+while label!=1:
 
-  feed_dict,_ = fill_feed_dict(train_data,
+  feed_dict = fill_feed_dict(train_data,
                              images_placeholder,
                              labels_placeholder,
                              1)
@@ -152,10 +145,10 @@ filters_fig,filters_ax = plt.subplots(filters1.shape[3])
 acts_fig,acts_ax = plt.subplots(filters1.shape[3])
 
 for i in range(filters1.shape[3]):
-  filters_ax[i].imshow(np.reshape(filters1[:,:,:,i],(5,5)) )
+  filters_ax[i].imshow(filters1[:,:,:,i] )
 
 for i in range(h1_acts.shape[2]):
-  acts_ax[i].imshow(np.reshape(h1_acts[:,:,i], (124,124)))
+  acts_ax[i].imshow(h1_acts[:,:,i])
 
 img_fig,img_ax = plt.subplots(1)
 img_ax.imshow(img.astype(np.uint8))
