@@ -8,17 +8,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-batch_size = 1
+
+
+#USER OPTIONS
+
+batch_size = 1#how many images to consider at once
+#where the trained models are saved
 trained_model_dir= '/playpen/ammirato/Documents/scene_specific_detection/trained_models/'
-model_name = 'test-999'
-image_size = 32
-
-
-
-
-
-
-
+model_name = 'test-999' #the model to use
 
 
 
@@ -32,7 +29,7 @@ def fill_feed_dict(data_set, images_pl, labels_pl, batch_size):
       ....
   }
   Args:
-    data_set: The set of images and labels, from input_data.read_data_sets()
+    data_set: The set of images and labels, InputData.InputData()
     images_pl: The images placeholder, from placeholder_inputs().
     labels_pl: The labels placeholder, from placeholder_inputs().
   Returns:
@@ -50,6 +47,22 @@ def fill_feed_dict(data_set, images_pl, labels_pl, batch_size):
 
 
 
+def undo_image_normalization(img):
+  """
+    Attempts to return a normal RGB image
+    
+    Tries to change image values to be [0,255]
+  """
+ 
+  #hardcoded 
+  img[:,:,0] = img[:,:,0] * 72.183
+  img[:,:,1] = img[:,:,1] * 80.042
+  img[:,:,2] = img[:,:,2] * 78.343
+  img[:,:,0] = img[:,:,0] + 120.763 
+  img[:,:,1] = img[:,:,1] + 119.409
+  img[:,:,2] = img[:,:,2] + 100.810
+
+  return img
 
 
 
@@ -58,87 +71,66 @@ def fill_feed_dict(data_set, images_pl, labels_pl, batch_size):
 
 
 
+## MAIN SCRIPT
 
 
-
-
-
-
-
+#start tensorflow session
 sess = tf.Session()
 
-
-
-
-train_data = InputData.InputData('Home_14_1',32);
-
-
-
-
-
-
-
+#load the model, and get the graph(holds all the tensors/operations)
 saver = tf.train.import_meta_graph(trained_model_dir + model_name + '.meta')
 saver.restore(sess,trained_model_dir + model_name)
-
-
 g = tf.get_default_graph()
-logits = g.get_tensor_by_name('softmax_out:0')
+#logits = g.get_tensor_by_name('softmax_out:0')
 
-
-# Generate placeholders for the images and labels.
+#get image and label placeholders for model
 images_placeholder = g.get_tensor_by_name('Placeholder:0')
-#org_shape = images_placeholder.shape()
-#images_placeholder = tf.reshape(images_placeholder,[None,org_shape[1],
-#                                                    org_shape[2],org_shape[3]])
 labels_placeholder = g.get_tensor_by_name('Placeholder_1:0')
+#get the image shape used in this model - [batch_size,width,height,channels]
+image_shape = images_placeholder.get_shape().as_list()
 
+#define where the data is coming from, and give image size(makes square images)
+data = InputData.InputData('Home_14_1',image_shape[1]);
+
+
+
+
+#get the tensors we are interested in displaying
 hidden1 = g.get_tensor_by_name('conv1_h:0')
 weights1 = g.get_tensor_by_name('conv1_w:0')
 
-correct = tf.nn.in_top_k(logits, labels_placeholder, 1)
-# Return the number of true entries.
-eval_correct =  tf.reduce_sum(tf.cast(correct, tf.int32))
 
 
-
-
-
-num_filters = 3
-
+#find an image with ground truth = 1 (hardcoded not background)
 label = 0
-
 while label!=1:
-
-  feed_dict = fill_feed_dict(train_data,
+  feed_dict = fill_feed_dict(data,
                              images_placeholder,
                              labels_placeholder,
                              1)
-
-
   label = feed_dict[labels_placeholder]
   assert len(label) == 1
   label = label[0]
-  print label
 
 
 
+
+#run the image through the model, and get the values
+#of the desired tensors
 [h1_acts,filters1]   = sess.run([hidden1,weights1], feed_dict=feed_dict)
 
+#stuff
 h1_acts = h1_acts[0]
 
+#get the image
 images= feed_dict[images_placeholder]
-
-img = images[0,:,:,:]
-
-img[:,:,0] = img[:,:,0] * 72.183
-img[:,:,1] = img[:,:,1] * 80.042
-img[:,:,2] = img[:,:,2] * 78.343
-img[:,:,0] = img[:,:,0] + 120.763 
-img[:,:,1] = img[:,:,1] + 119.409
-img[:,:,2] = img[:,:,2] + 100.810
+img = undo_image_normalization(images[0,:,:,:])
 
 
+
+
+
+## DISPLAY
 
 
 filters_fig,filters_ax = plt.subplots(filters1.shape[3])
