@@ -133,14 +133,28 @@ img = undo_image_normalization(images[0,:,:,:])
 ## DISPLAY
 
 
-filters_fig,filters_ax = plt.subplots(filters1.shape[3])
-acts_fig,acts_ax = plt.subplots(filters1.shape[3])
+#filters_fig,filters_ax = plt.subplots(filters1.shape[3])
+#acts_fig,acts_ax = plt.subplots(filters1.shape[3])
 
-for i in range(filters1.shape[3]):
-  filters_ax[i].imshow(filters1[:,:,:,i] )
 
-for i in range(h1_acts.shape[2]):
-  acts_ax[i].imshow(h1_acts[:,:,i])
+num_plots = filters1.shape[3] + h1_acts.shape[2]
+num_cols = 2
+num_rows = num_plots/num_cols
+
+#plot the filters and activations
+tensors_fig,tensors_ax = plt.subplots(num_rows,num_cols)
+for i in range(num_rows):
+  for j in range(num_cols)[::2]:
+    tensors_ax[i][j].imshow(filters1[:,:,:,i] )
+    tensors_ax[i][j+1].imshow(h1_acts[:,:,i] )
+
+
+
+#for i in range(filters1.shape[3]):
+#  filters_ax[i].imshow(filters1[:,:,:,i] )
+#
+#for i in range(h1_acts.shape[2]):
+#  acts_ax[i].imshow(h1_acts[:,:,i])
 
 img_fig,img_ax = plt.subplots(1)
 img_ax.imshow(img.astype(np.uint8))

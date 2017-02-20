@@ -202,8 +202,8 @@ def run_training():
 
     # Build a Graph that computes predictions from the inference model.
     logits = model_spec.inference(InputData.InputData.num_cats, images_placeholder,
-                             4,
-                             4,
+                             8,
+                             8,
                              1024)
 
     # Add to the Graph the Ops for loss calculation.
